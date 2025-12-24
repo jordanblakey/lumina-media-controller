@@ -4,6 +4,8 @@ A premium, D-Bus-powered media companion for Linux.
 
 Lumina gives you a centralized hub to monitor and control every media player on your system with zero friction. Whether you're juggling Spotify, YouTube, and VLC, Lumina keeps everything organized, identified, and controllable from a single, beautiful interface.
 
+Recorded Demonstration: https://youtu.be/DyoWhIAgIwc
+
 ## Key Features
 
 - **Intelligent Player Identification**: Automatically identifies active media players using D-Bus Well-Known Names for high reliability and security.
