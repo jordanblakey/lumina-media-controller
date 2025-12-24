@@ -1,11 +1,15 @@
-const { app, protocol, BrowserWindow, nativeImage, net, ipcMain } = require('electron');
+const { app, protocol, BrowserWindow, Menu, nativeImage, net, ipcMain } = require('electron');
 const path = require('node:path');
-const { startMediaMonitor, togglePlayPause } = require('./media-service');
+const { startMediaMonitor, togglePlayPause, next, previous, setSystemVolume, restartTrack } = require('./media-service');
 
 // Listen for playback control events from the renderer
-ipcMain.on('media-toggle-play-pause', () => {
-    togglePlayPause();
-});
+ipcMain.on('media-toggle-play-pause', (_event, senderId) => togglePlayPause(senderId));
+ipcMain.on('media-next', () => next());
+ipcMain.on('media-previous', () => previous());
+ipcMain.on('media-restart', () => restartTrack());
+ipcMain.on('media-set-system-volume', (_event, value) => setSystemVolume(value));
+
+
 
 
 // 1. Register scheme as privileged (Must be before 'ready')
@@ -27,6 +31,8 @@ const createWindow = () => {
     const win = new BrowserWindow({
         width: 800,
         height: 600,
+        minWidth: 800,
+        minHeight: 600,
         icon: path.join(__dirname, '../assets/icon.png'),
         webPreferences: {
             autoplayPolicy: 'no-user-gesture-required',
@@ -53,6 +59,7 @@ app.whenReady().then(() => {
         return net.fetch(fileUrl);
     });
 
+    Menu.setApplicationMenu(null);
     createWindow();
     
     // Start media monitoring AFTER the window exists to ensure IPC is ready

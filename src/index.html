@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Media Monitor</title>
+    <title>Lumina Media Controller</title>
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
     <style>
         :root {
@@ -20,18 +20,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column; /* Stack card and controls */
             height: 100vh;
+            gap: 24px;
         }
         .media-card {
             background-color: var(--card-bg);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             display: flex;
             gap: 24px;
-            width: 500px;
+            width: 600px;
             align-items: center;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: transform 0.3s ease;
         }
         #media-art {
             width: 140px;
@@ -40,11 +43,7 @@
             border-radius: 12px;
             background-color: #000;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            transition: transform 0.3s ease;
-        }
-        #media-art:hover {
-            transform: scale(1.02);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
         }
         .info {
             flex-grow: 1;
@@ -52,38 +51,12 @@
             display: flex;
             flex-direction: column;
         }
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 4px;
-        }
         h1 {
-            font-size: 1.25rem;
-            margin: 0;
+            font-size: 1.4rem;
+            margin: 0 0 4px 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-        .play-btn {
-            background-color: var(--accent);
-            color: var(--bg-color);
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            font-size: 1rem;
-            transition: transform 0.2s ease, filter 0.2s ease;
-        }
-        .play-btn:hover {
-            transform: scale(1.1);
-            filter: brightness(1.1);
         }
         .artist {
             font-size: 1rem;
@@ -94,7 +67,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         .album {
             font-size: 0.875rem;
             color: var(--text-secondary);
@@ -109,8 +81,106 @@
             gap: 8px;
             font-size: 0.75rem;
             color: var(--text-secondary);
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255,255,255,0.05);
             padding-top: 12px;
+        }
+        
+        /* New Controls Styling */
+        .controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            width: 600px;
+        }
+        .main-controls {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+        .control-btn:hover {
+            color: var(--accent);
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+        }
+        /* Icon Styling */
+        .icon {
+            width: 30px;
+            height: 30px;
+            background-color: currentColor;
+            display: inline-block;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+        }
+        .prev-icon { -webkit-mask-image: url('media://icons/prev.svg'); mask-image: url('media://icons/prev.svg'); }
+        .play-icon { -webkit-mask-image: url('media://icons/play.svg'); mask-image: url('media://icons/play.svg'); }
+        .pause-icon { -webkit-mask-image: url('media://icons/pause.svg'); mask-image: url('media://icons/pause.svg'); }
+        .next-icon { -webkit-mask-image: url('media://icons/next.svg'); mask-image: url('media://icons/next.svg'); }
+
+        .play-pause-btn {
+            background-color: var(--text-primary);
+            color: var(--bg-color);
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+        .play-pause-btn .icon {
+            width: 34px;
+            height: 34px;
+        }
+        .play-pause-btn:hover {
+            transform: scale(1.05);
+            background-color: var(--accent);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .volume-icon { -webkit-mask-image: url('media://icons/volume_up.svg'); mask-image: url('media://icons/volume_up.svg'); }
+        .volume-down-icon { -webkit-mask-image: url('media://icons/volume_down.svg'); mask-image: url('media://icons/volume_down.svg'); }
+        .volume-mute-icon { -webkit-mask-image: url('media://icons/volume_mute.svg'); mask-image: url('media://icons/volume_mute.svg'); }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 80%;
+            color: var(--text-secondary);
+        }
+        input[type="range"] {
+            flex-grow: 1;
+            accent-color: var(--accent);
+            cursor: pointer;
+            height: 4px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
         }
         .status-badge {
             background: rgba(56, 189, 248, 0.1);
@@ -119,17 +189,58 @@
             border-radius: 99px;
             font-weight: 600;
             text-transform: uppercase;
+            font-size: 0.65rem;
         }
+        
+        #player-list {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 600px;
+        }
+        .player-pill {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .player-pill:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+        }
+        .player-pill.active {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+        .player-stat-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #475569;
+        }
+        .Playing .player-stat-dot { background: #22c55e; }
+        .Paused .player-stat-dot { background: #eab308; }
+
     </style>
 </head>
 <body>
     <div class="media-card">
         <img id="media-art" src="" style="display: none;">
         <div class="info">
-            <div class="header-row">
-                <h1 id="title">Waiting for Media...</h1>
-                <button id="toggle-btn" class="play-btn">▶</button>
-            </div>
+            <h1 id="title">Waiting for Media...</h1>
             <div class="artist" id="artist">---</div>
             <div class="album" id="album">---</div>
             <div class="meta">
@@ -140,22 +251,89 @@
         </div>
     </div>
 
+    <!-- Centered Controls Below Card -->
+    <div class="controls-wrapper">
+        <div class="main-controls">
+            <button id="prev-btn" class="control-btn" title="Previous">
+                <span class="icon prev-icon"></span>
+            </button>
+            <button id="toggle-btn" class="control-btn play-pause-btn">
+                <span id="play-pause-icon" class="icon play-icon"></span>
+            </button>
+            <button id="next-btn" class="control-btn" title="Next">
+                <span class="icon next-icon"></span>
+            </button>
+        </div>
+        
+        <div class="volume-container">
+            <span id="volume-low-icon" class="icon volume-down-icon"></span>
+            <input type="range" id="volume-slider" min="0" max="100" value="50">
+            <span id="volume-high-icon" class="icon volume-icon"></span>
+        </div>
+
+        <!-- New Player List -->
+        <div id="player-list"></div>
+    </div>
+
+
     <script>
         const toggleBtn = document.getElementById('toggle-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const volumeSlider = document.getElementById('volume-slider');
         const statusEl = document.getElementById('status');
         const artImg = document.getElementById('media-art');
 
-        // Setup control interaction
-        toggleBtn.addEventListener('click', () => {
-            window.electronAPI.togglePlayPause();
+        // Control Actions
+        toggleBtn.addEventListener('click', () => window.electronAPI.togglePlayPause());
+        
+        // Refined Previous logic: 1x = Restart, 2x = Previous
+        let prevClickCount = 0;
+        let prevClickTimer = null;
+        
+        prevBtn.addEventListener('click', () => {
+            prevClickCount++;
+            if (prevClickCount === 1) {
+                prevClickTimer = setTimeout(() => {
+                    if (prevClickCount === 1) {
+                        console.log("[UI] Single Click - Restarting track");
+                        window.electronAPI.restart();
+                    }
+                    prevClickCount = 0;
+                }, 400); // Increased window slightly for better feel
+            } else if (prevClickCount >= 2) {
+                clearTimeout(prevClickTimer);
+                console.log("[UI] Double Click - Skipping to previous track");
+                window.electronAPI.previous();
+                prevClickCount = 0;
+            }
         });
+
+        nextBtn.addEventListener('click', () => window.electronAPI.next());
+        
+        let isDraggingVolume = false;
+
+        volumeSlider.addEventListener('mousedown', () => { isDraggingVolume = true; });
+        window.addEventListener('mouseup', () => { isDraggingVolume = false; });
+        volumeSlider.addEventListener('touchstart', () => { isDraggingVolume = true; });
+        window.addEventListener('touchend', () => { isDraggingVolume = false; });
+        
+        let volumeThrottleTimer = null;
+        volumeSlider.addEventListener('input', (e) => {
+            if (volumeThrottleTimer) return;
+            volumeThrottleTimer = setTimeout(() => {
+                window.electronAPI.setSystemVolume(parseInt(e.target.value));
+                volumeThrottleTimer = null;
+            }, 50); // 50ms throttle
+        });
+
 
         // Initialize with placeholder
         artImg.src = 'media://placeholder.png';
         artImg.style.display = 'block';
 
         window.electronAPI.onMediaUpdate((metadata) => {
-            console.log("[UI] Received update:", metadata);
+            // console.log("[UI] Received update:", metadata);
 
             const titleEl = document.getElementById('title');
             const artistEl = document.getElementById('artist');
@@ -183,9 +361,16 @@
 
             // Handle Status
             statusEl.innerText = metadata.status || 'Stopped';
-            toggleBtn.innerText = (metadata.status === 'Playing') ? '⏸' : '▶';
+            const ppIcon = document.getElementById('play-pause-icon');
+            if (metadata.status === 'Playing') {
+                ppIcon.classList.remove('play-icon');
+                ppIcon.classList.add('pause-icon');
+            } else {
+                ppIcon.classList.remove('pause-icon');
+                ppIcon.classList.add('play-icon');
+            }
             
-            // Optional: visual feedback for playing
+            // Visual feedback for playing status
             if (metadata.status === 'Playing') {
                 statusEl.style.background = 'rgba(34, 197, 94, 0.1)';
                 statusEl.style.color = '#4ade80';
@@ -194,7 +379,40 @@
                 statusEl.style.color = '#38bdf8';
             }
         });
+
+        // Listen for system volume updates
+        window.electronAPI.onSystemVolumeUpdate((vol) => {
+            if (!isDraggingVolume) {
+                // console.log("[UI] Syncing volume from system:", vol);
+                volumeSlider.value = vol;
+            }
+
+            // Update volume icons
+            const lowIcon = document.getElementById('volume-low-icon');
+            if (vol === 0) {
+                lowIcon.className = 'icon volume-mute-icon';
+            } else if (vol < 50) {
+                lowIcon.className = 'icon volume-down-icon';
+            } else {
+                lowIcon.className = 'icon volume-down-icon'; // Keep it constant or swap both?
+            }
+        });
+
+        window.electronAPI.onPlayerListUpdate((players) => {
+            const container = document.getElementById('player-list');
+            if (container) {
+                container.innerHTML = players.map(p => `
+                    <div class="player-pill ${p.isActive ? 'active' : ''} ${p.status}" 
+                         onclick="window.electronAPI.togglePlayPause('${p.sender}')">
+                        <span class="player-stat-dot"></span>
+                        ${p.name}
+                    </div>
+                `).join('');
+            }
+        });
     </script>
+
+
 
 </body>
 </html>

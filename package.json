@@ -1,23 +1,27 @@
 {
-  "name": "electron-experiments",
+  "name": "lumina-media-controller",
+  "productName": "Lumina",
   "version": "1.0.0",
-  "description": "A simple Hello World Electron application for testing icons.",
+  "description": "A premium, intelligent media dashboard for the Linux desktop.",
   "homepage": "https://example.com/electron-experiments",
   "main": "src/main.js",
   "scripts": {
     "start": "electron . --no-sandbox",
     "clean": "rm -rf dist",
-    "dist": "electron-builder",
-    "dist:fast": "electron-builder --linux deb -c.compression=store",
-    "dist:dir": "electron-builder --dir"
+    "build": "electron-builder",
+    "build:fast": "electron-builder --linux deb -c.compression=store",
+    "build:dir": "electron-builder --dir",
+    "reinstall": "npm run build:fast && sudo apt remove lumina-media-controller electron-experiments -y || true && sudo apt install ./dist/lumina-media-controller_1.0.0_amd64.deb -y"
   },
   "build": {
-    "appId": "com.hello.world",
+    "appId": "com.lumina.mediacontroller",
+    "icon": "assets/icon.png",
     "linux": {
+      "category": "AudioVideo",
       "target": [
         "deb"
       ],
-      "icon": "icon.png"
+      "icon": "assets/icon.png"
     }
   },
   "keywords": [],
