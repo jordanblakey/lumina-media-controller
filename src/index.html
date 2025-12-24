@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Media Monitor</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .media-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            gap: 24px;
+            width: 500px;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        #media-art {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 12px;
+            background-color: #000;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: transform 0.3s ease;
+        }
+        #media-art:hover {
+            transform: scale(1.02);
+        }
+        .info {
+            flex-grow: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+        h1 {
+            font-size: 1.25rem;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .play-btn {
+            background-color: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            font-size: 1rem;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+        .play-btn:hover {
+            transform: scale(1.1);
+            filter: brightness(1.1);
+        }
+        .artist {
+            font-size: 1rem;
+            color: var(--accent);
+            margin: 0 0 8px 0;
+            font-weight: 500;
+        }
+
+        .album {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        .meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 12px;
+        }
+        .status-badge {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="media-card">
+        <img id="media-art" src="" style="display: none;">
+        <div class="info">
+            <div class="header-row">
+                <h1 id="title">Waiting for Media...</h1>
+                <button id="toggle-btn" class="play-btn">▶</button>
+            </div>
+            <div class="artist" id="artist">---</div>
+            <div class="album" id="album">---</div>
+            <div class="meta">
+                <span id="player">No Player Detected</span>
+                <span>•</span>
+                <span id="status" class="status-badge">Stopped</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('toggle-btn');
+        const statusEl = document.getElementById('status');
+        const artImg = document.getElementById('media-art');
+
+        // Setup control interaction
+        toggleBtn.addEventListener('click', () => {
+            window.electronAPI.togglePlayPause();
+        });
+
+        // Initialize with placeholder
+        artImg.src = 'media://placeholder.png';
+        artImg.style.display = 'block';
+
+        window.electronAPI.onMediaUpdate((metadata) => {
+            console.log("[UI] Received update:", metadata);
+
+            document.getElementById('title').innerText = metadata.title || "Unknown Title";
+            document.getElementById('artist').innerText = metadata.artist || "Unknown Artist";
+            document.getElementById('album').innerText = metadata.album || "---";
+            document.getElementById('player').innerText = metadata.player || "unknown";
+            
+            // Handle Art
+            if (metadata.artUrl && metadata.artUrl.startsWith('http')) {
+                artImg.src = metadata.artUrl;
+            } else if (metadata.artUrl && metadata.artUrl.startsWith('file://')) {
+                artImg.src = metadata.artUrl;
+            } else {
+                artImg.src = 'media://placeholder.png';
+            }
+
+            // Handle Status
+            statusEl.innerText = metadata.status || 'Stopped';
+            toggleBtn.innerText = (metadata.status === 'Playing') ? '⏸' : '▶';
+            
+            // Optional: visual feedback for playing
+            if (metadata.status === 'Playing') {
+                statusEl.style.background = 'rgba(34, 197, 94, 0.1)';
+                statusEl.style.color = '#4ade80';
+            } else {
+                statusEl.style.background = 'rgba(56, 189, 248, 0.1)';
+                statusEl.style.color = '#38bdf8';
+            }
+        });
+    </script>
+
+</body>
+</html>

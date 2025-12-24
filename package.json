@@ -1,0 +1,32 @@
+{
+  "name": "electron-experiments",
+  "version": "1.0.0",
+  "description": "A simple Hello World Electron application for testing icons.",
+  "homepage": "https://example.com/electron-experiments",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron . --no-sandbox",
+    "clean": "rm -rf dist",
+    "dist": "electron-builder",
+    "dist:fast": "electron-builder --linux deb -c.compression=store",
+    "dist:dir": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.hello.world",
+    "linux": {
+      "target": [
+        "deb"
+      ],
+      "icon": "icon.png"
+    }
+  },
+  "keywords": [],
+  "author": "Jordan Blakey <jblakey@example.com>",
+  "license": "MIT",
+  "maintainer": "Jordan Blakey <jblakey@example.com>",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12"
+  }
+}
