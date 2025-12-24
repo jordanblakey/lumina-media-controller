@@ -1,0 +1,23 @@
+abi <abi/4.0>,
+include <tunables/global>
+
+profile lumina-media-controller "/opt/Lumina/lumina-media-controller" flags=(unconfined) {
+  # Fixes the 'FATAL:sandbox' crash
+  userns,
+  
+  # Allow access to the D-Bus Session Bus
+  dbus bus=session,
+
+  # Allow talking to ANY MPRIS player (The Universal Rule)
+  dbus (send, receive) bus=session interface=org.mpris.MediaPlayer2*,
+  dbus (send, receive) bus=session path=/org/mpris/MediaPlayer2*,
+  dbus (send, receive) bus=session interface=org.freedesktop.DBus.Properties,
+
+  # Explicitly allow talking to Snap peers (like Spotify/Firefox)
+  dbus (send, receive) bus=session peer=(label=snap.*),
+  
+  # Fallback for Flatpak proxies
+  dbus (send, receive) bus=session peer=(label=unconfined),
+
+  include if exists <local/lumina-media-controller>
+}

@@ -1,18 +1,15 @@
 const { app, protocol, BrowserWindow, Menu, nativeImage, net, ipcMain } = require('electron');
 const path = require('node:path');
-const { startMediaMonitor, togglePlayPause, next, previous, setSystemVolume, restartTrack } = require('./media-service');
+const { startMediaMonitor, togglePlayPause, next, previous, setSystemVolume, refreshUI } = require('./media-service');
 
-// Listen for playback control events from the renderer
-ipcMain.on('media-toggle-play-pause', (_event, senderId) => togglePlayPause(senderId));
-ipcMain.on('media-next', () => next());
-ipcMain.on('media-previous', () => previous());
-ipcMain.on('media-restart', () => restartTrack());
-ipcMain.on('media-set-system-volume', (_event, value) => setSystemVolume(value));
+// IPC Handlers
+ipcMain.on('ui-ready', () => refreshUI() );
+ipcMain.on('media-toggle-play-pause', (_, id) => togglePlayPause(id));
+ipcMain.on('media-next', next);
+ipcMain.on('media-previous', previous);
+ipcMain.on('media-set-system-volume', (_, vol) => setSystemVolume(vol));
 
-
-
-
-// 1. Register scheme as privileged (Must be before 'ready')
+// 1. Register scheme (Must be before 'ready')
 protocol.registerSchemesAsPrivileged([
   { 
     scheme: 'media', 
@@ -28,40 +25,34 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 const createWindow = () => {
-    const win = new BrowserWindow({
-        width: 800,
-        height: 600,
-        minWidth: 800,
-        minHeight: 600,
-        icon: path.join(__dirname, '../assets/icon.png'),
-        webPreferences: {
-            autoplayPolicy: 'no-user-gesture-required',
-            preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true,
-            nodeIntegration: false,
-        }
-    });
-    win.loadFile(path.join(__dirname, 'index.html'));
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    minWidth: 800,
+    minHeight: 600,
+    icon: path.join(__dirname, '../assets/icon.png'),
+    webPreferences: {
+      autoplayPolicy: 'no-user-gesture-required',
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      devTools: true
+    }
+  });
+  win.loadFile(path.join(__dirname, 'index.html'));
+  Menu.setApplicationMenu(null);
 };
 
 app.whenReady().then(() => {
-    // 2. Register the handler BEFORE creating the window
-    protocol.handle('media', (request) => {
-        let urlPath = request.url.replace('media://', '');
-        if (urlPath.endsWith('/')) {
-            urlPath = urlPath.slice(0, -1);
-        }
-        
-        const absolutePath = path.join(__dirname, '../assets', urlPath);
-        console.log('[Main Process] Fetching asset from:', absolutePath);
+  console.log('[Main Process] Lumina Ready');
 
-        const fileUrl = `file://${absolutePath.startsWith('/') ? '' : '/'}${absolutePath}`;
-        return net.fetch(fileUrl);
-    });
+  // 2. Optimized Protocol Handler
+  protocol.handle('media', (req) => {
+    const urlPath = req.url.replace('media://', '').replace(/\/$/, '');
+    const absolutePath = path.join(__dirname, '../assets', urlPath);
+    return net.fetch(`file://${absolutePath}`);
+  });
 
-    Menu.setApplicationMenu(null);
-    createWindow();
-    
-    // Start media monitoring AFTER the window exists to ensure IPC is ready
-    startMediaMonitor();
+  createWindow();
+  startMediaMonitor();
 });
