@@ -6,18 +6,19 @@ Lumina gives you a centralized hub to monitor and control every media player on 
 
 ## Key Features
 
-- **Intelligent Player Identification**: Automatically distinguishes between different versions of the same app (e.g., "Google Chrome" vs. "Google Chrome Beta") by deep-inspecting system processes.
-- **Interactive Player List**: View all active media sources. Click any player badge to toggle its playback independently without changing your main focus.
-- **Dynamic Control Suite**: Full playback controls (Play/Pause, Skip, Previous, Restart) and integrated system volume management.
-- **Self-Healing State**: Proactively detects application closures and process exits to ensure your dashboard is always clean and accurate.
-- **Premium Aesthetics**: A modern, dark-mode interface with smooth transitions and SVG iconography.
+- **Intelligent Player Identification**: Automatically identifies active media players using D-Bus Well-Known Names for high reliability and security.
+- **Interactive Player List**: View all active media sources. Click any player badge to toggle its playback independently.
+- **Dynamic Control Suite**: Full playback controls (Play/Pause, Skip, Previous) and integrated system volume management.
+- **Real-Time Sync**: Proactively monitors D-Bus signals for instant metadata and status updates.
+- **Premium Aesthetics**: A modern, dark-mode interface with glassmorphism, smooth transitions, and custom iconography.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js and npm
-- Linux with D-Bus and amixer (standard on most distros)
+- Linux with D-Bus and `amixer` (standard on most distros)
+- `busctl` (provided by systemd)
 
 ### Installation & Development
 
@@ -29,7 +30,7 @@ npm install
 npm start
 
 # Build a fast distribution (.deb)
-npm run dist:fast
+npm run build:fast
 ```
 
 ### Quick Reinstall
@@ -42,21 +43,21 @@ npm run reinstall
 
 ## Technical Stack
 
-Lumina is built on a hybrid architecture that blends modern web technologies with low-level Linux systems programming:
+Lumina is built on a hybrid architecture that blends modern web technologies with Linux systems programming:
 
-- **Frontend**: A minimal, high-performance UI built with standard **HTML5**, **CSS3** (modern flexbox/grid), and **Vanilla JavaScript**.
+- **Frontend**: A minimal, high-performance UI built with standard **HTML5**, **CSS3**, and **Vanilla JavaScript**.
 - **Backend (Electron)**: Orchestrates system-level interactions using Node.js.
-- **IPC Bridge**: Uses a secure `contextBridge` and `preload.js` pattern to facilitate communication between the UI and the Linux system.
-- **D-Bus Integration**: Communicates with the Linux session bus using the **MPRIS protocol** via `dbus-send` and `dbus-monitor`.
-- **System Utilities**: Integrates with `amixer` for global hardware volume control and inspects the `/proc` filesystem for process-level metadata.
+- **IPC Bridge**: Uses a secure `contextBridge` and `preload.js` pattern with an asynchronous "UI Ready" handshake for reliable initialization.
+- **D-Bus Integration**: Communicates with the MPRIS protocol using **`busctl`** for high-efficiency JSON output parsing.
+- **System Utilities**: Integrates with `amixer` for global hardware volume control.
 
-## The Vision
+## Security & Sandboxing
 
-Lumina aims to be the definitive "Now Playing" experience for Linux. It's not just a remote control; it's a context-aware dashboard that understands *how* you use media across different applications and brings them together into a unified, high-performance workflow.
+Lumina includes a custom **AppArmor profile** designed to resolve permission issues when communicating with players installed via **Flatpak** or **Snap**. This profile ensures the application has the necessary permissions to talk to the session bus while maintaining a secure security posture.
 
 ## How it Works
 
-Lumina leverages the **MPRIS (Media Player Remote Interfacing Specification)** over D-Bus. It monitors system signals in real-time to track metadata changes and uses a proprietary "Deep Identification" layer to resolve ambiguous player identities by cross-referencing process command lines in `/proc`.
+Lumina leverages the **MPRIS (Media Player Remote Interfacing Specification)** over D-Bus. It uses `busctl` to query player metadata and status in real-time. By utilizing Well-Known Names (e.g., `org.mpris.MediaPlayer2.spotify`), Lumina ensures consistent identification across different distribution methods (Native, Flatpak, Snap).
 
 ## Credits
 
