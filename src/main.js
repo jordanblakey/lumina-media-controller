@@ -1,3 +1,7 @@
+try {
+  require('electron-reloader')(module);
+} catch (_) {}
+
 const { app, protocol, BrowserWindow, Menu, nativeImage, net, ipcMain } = require('electron');
 const path = require('node:path');
 const { startMediaMonitor, togglePlayPause, next, previous, setSystemVolume, refreshUI } = require('./media-service');
@@ -29,7 +33,7 @@ const createWindow = () => {
     width: 800,
     height: 600,
     minWidth: 400,
-    minHeight: 200,
+    minHeight: 240,
     icon: path.join(__dirname, '../assets/icon.png'),
     webPreferences: {
       autoplayPolicy: 'no-user-gesture-required',
@@ -41,6 +45,26 @@ const createWindow = () => {
   });
   win.loadFile(path.join(__dirname, 'index.html'));
   Menu.setApplicationMenu(null);
+
+  // Enable Right-Click Inspect in Development
+  win.webContents.on('context-menu', (e, params) => {
+    if (!app.isPackaged) {
+      const { Menu, MenuItem } = require('electron');
+      const menu = new Menu();
+      menu.append(new MenuItem({
+        label: 'Reload',
+        click: () => win.reload()
+      }));
+      menu.append(new MenuItem({ type: 'separator' }));
+      menu.append(new MenuItem({
+        label: 'Inspect',
+        click: () => {
+          win.webContents.inspectElement(params.x, params.y);
+        }
+      }));
+      menu.popup({ window: win, x: params.x, y: params.y });
+    }
+  });
 };
 
 app.whenReady().then(() => {

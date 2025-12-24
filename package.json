@@ -11,7 +11,7 @@
     "build": "electron-builder",
     "build:fast": "electron-builder --linux deb -c.compression=store",
     "build:dir": "electron-builder --dir",
-    "reinstall": "npm run build:fast && sudo apt remove lumina-media-controller -y || true && sudo apt install ./dist/lumina-media-controller_1.0.0_amd64.deb -y"
+    "rebuild": "npm run build:fast && sudo apt remove lumina-media-controller -y || true && sudo apt install ./dist/lumina-media-controller_1.0.0_amd64.deb -y && /opt/Lumina/lumina-media-controller"
   },
   "build": {
     "appId": "com.lumina.mediacontroller",
@@ -35,6 +35,7 @@
   "type": "commonjs",
   "devDependencies": {
     "electron": "^39.2.7",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "electron-reloader": "^1.2.3"
   }
 }

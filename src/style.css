@@ -282,3 +282,81 @@ input[type="range"]:hover::-webkit-slider-thumb {
 
 .Playing .player-stat-dot { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
 .Paused .player-stat-dot { background: #eab308; box-shadow: 0 0 8px #eab308; }
+
+/* Tiny Mode Media Queries */
+@media (max-width: 700px), (max-height: 500px) {
+    body {
+        gap: 12px;
+        padding: 16px;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .media-card {
+        width: 95%;
+        max-width: 400px;
+        padding: 16px;
+        gap: 16px;
+        border-radius: 16px;
+    }
+
+    #media-art {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+    }
+
+    h1 {
+        font-size: 1.1rem;
+        margin-bottom: 2px;
+    }
+
+    .artist {
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+
+    .album,
+    .meta {
+        display: none;
+    }
+
+    .controls-wrapper {
+        width: 95%;
+        max-width: 400px;
+        gap: 12px;
+    }
+
+    .main-controls {
+        gap: 16px;
+    }
+
+    .control-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .play-pause-btn {
+        width: 56px;
+        height: 56px;
+    }
+
+    .icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .volume-container {
+        gap: 10px;
+    }
+
+    #player-list {
+        margin-top: 4px;
+        gap: 6px;
+    }
+
+    .player-pill {
+        padding: 4px 10px;
+        font-size: 0.7rem;
+    }
+}
