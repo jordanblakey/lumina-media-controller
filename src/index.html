@@ -90,12 +90,18 @@
             color: var(--accent);
             margin: 0 0 8px 0;
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .album {
             font-size: 0.875rem;
             color: var(--text-secondary);
             margin-bottom: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .meta {
             display: flex;
@@ -151,9 +157,19 @@
         window.electronAPI.onMediaUpdate((metadata) => {
             console.log("[UI] Received update:", metadata);
 
-            document.getElementById('title').innerText = metadata.title || "Unknown Title";
-            document.getElementById('artist').innerText = metadata.artist || "Unknown Artist";
-            document.getElementById('album').innerText = metadata.album || "---";
+            const titleEl = document.getElementById('title');
+            const artistEl = document.getElementById('artist');
+            const albumEl = document.getElementById('album');
+
+            titleEl.innerText = metadata.title || "Unknown Title";
+            titleEl.title = metadata.title || "";
+
+            artistEl.innerText = metadata.artist || "Unknown Artist";
+            artistEl.title = metadata.artist || "";
+
+            albumEl.innerText = metadata.album || "---";
+            albumEl.title = metadata.album || "";
+
             document.getElementById('player').innerText = metadata.player || "unknown";
             
             // Handle Art

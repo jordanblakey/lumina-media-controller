@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=Hello World
-Exec=/home/invisible/projects/electron-experiments/dist/electron-experiments-1.0.0.AppImage --no-sandbox
-Icon=/home/invisible/projects/electron-experiments/icon.png
-Type=Application
-Categories=Utility;

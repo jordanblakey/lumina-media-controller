@@ -13,4 +13,6 @@ restructure into src and assets
 create npm script for cleaning builds
 git init
 add .gitignore
+
+cleanup the .desktop file, this should be generated and not in version control
 ```
